@@ -1,0 +1,17 @@
+[package]
+name = "schoolterm"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+base64 = "0.21.0"
+chrono = "0.4.24"
+console_engine = { version = "2.5.1", features = ["form"] }
+home = "0.5.4"
+reqwest = "0.11.15"
+serde = { version = "1.0.158", features = ["derive"] }
+serde_json = "1.0.94"
+termsize = "0.1.6"
+tokio = {version = "1.26.0", features = ["full"]}
