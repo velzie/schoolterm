@@ -4,36 +4,33 @@ use chrono::{DateTime, Utc};
 use console_engine::crossterm::event::{self, KeyEvent};
 use console_engine::events::Event;
 use console_engine::forms::FormField;
-use console_engine::forms::{Form, FormOptions, FormStyle, HiddenText, Text};
-use console_engine::pixel::{self, Pixel};
-use console_engine::rect_style::BorderStyle;
-use console_engine::screen::Screen;
-use console_engine::{Color, ConsoleEngine, KeyCode, KeyModifiers};
+
+use console_engine::pixel::{self};
+
+use console_engine::{Color, KeyCode, KeyModifiers};
 use home;
 use schooltool::{SchoolTool, Student};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::cell::RefCell;
-use std::ffi::NulError;
+
 use std::fmt::Display;
 use std::fs;
 use std::future::Future;
 use std::path::PathBuf;
-use std::rc::Rc;
-use std::task::Poll;
+
 use std::thread::{self};
 use std::time::UNIX_EPOCH;
-use std::{error::Error, ffi::c_void, time::Duration};
+use std::{error::Error, time::Duration};
 use termsize::{self, Size};
-use tokio::join;
-use tokio::sync::mpsc::{self, Receiver, Sender};
+
+use tokio::sync::mpsc::{self, Receiver};
 use tokio::sync::oneshot;
 use tui::{AsWidget, Rect, Theme, Tui, Widget};
 
 pub const MARKINGPERIODIDS: [u16; 4] = [592, 591, 590, 589];
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
-struct UserData {
+pub struct UserData {
     baseurl: String,
     username: String,
     password: String,
@@ -123,7 +120,7 @@ fn tui_thread(userdata: &mut UserData, tx: mpsc::Sender<Command>) -> Result<(), 
         if !userdata.valid {
             t.userdata_form(userdata);
         }
-        let (resp_tx, mut resp_rx) = oneshot::channel();
+        let (resp_tx, resp_rx) = oneshot::channel();
 
         tx.blocking_send(Command::Login {
             username: userdata.username.clone(),
@@ -355,7 +352,7 @@ fn tui_thread(userdata: &mut UserData, tx: mpsc::Sender<Command>) -> Result<(), 
                     }
                 }
             } else {
-                let (resp_tx, mut resp_rx) = oneshot::channel();
+                let (resp_tx, resp_rx) = oneshot::channel();
                 tx.blocking_send(Command::QuarterData {
                     quarter: qdat[quarterdrawer.clicked_index].id.clone(),
                     data_type: data_from_index_scuffed_please_refactor(typedrawer.clicked_index),
@@ -366,7 +363,7 @@ fn tui_thread(userdata: &mut UserData, tx: mpsc::Sender<Command>) -> Result<(), 
                     Some(t.poll_blocking(resp_rx).unwrap().courses);
             }
         } else {
-            let (resp_tx, mut resp_rx) = oneshot::channel();
+            let (resp_tx, resp_rx) = oneshot::channel();
             tx.blocking_send(Command::QuarterData {
                 quarter: Value::Null,
                 data_type: data_from_index_scuffed_please_refactor(typedrawer.clicked_index),

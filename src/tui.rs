@@ -2,7 +2,6 @@ use std::error::Error;
 
 use console_engine::crossterm::event::{self, MouseEvent, MouseEventKind};
 use console_engine::forms::FormField;
-use console_engine::pixel::Pixel;
 use console_engine::{
     crossterm::event::KeyEvent,
     events::Event,
@@ -13,12 +12,9 @@ use console_engine::{
     Color, ConsoleEngine, KeyCode, KeyModifiers,
 };
 use termsize::Size;
-use tokio::sync::{
-    mpsc,
-    oneshot::{Receiver, Sender},
-};
+use tokio::sync::oneshot::Receiver;
 
-use crate::{schooltool::Student, Command, Responder, UserData};
+use crate::UserData;
 
 pub struct Tui {
     pub size: Size,
@@ -27,7 +23,7 @@ pub struct Tui {
 impl Tui {
     pub fn new() -> Result<Self, Box<dyn Error>> {
         let size = termsize::get().unwrap();
-        let mut engine = ConsoleEngine::init(size.cols.into(), size.rows.into(), 20).unwrap();
+        let engine = ConsoleEngine::init(size.cols.into(), size.rows.into(), 20).unwrap();
 
         Ok(Tui { size, engine })
     }
@@ -170,18 +166,18 @@ impl Tui {
                 event => form.handle_event(event),
             }
         }
-        userdata.baseurl = match form.get_field_output("baseurl").unwrap(){
-            console_engine::forms::FormValue::String(s)=>s,
-            _=>unreachable!()
+        userdata.baseurl = match form.get_field_output("baseurl").unwrap() {
+            console_engine::forms::FormValue::String(s) => s,
+            _ => unreachable!(),
         };
-        userdata.username = match form.get_field_output("username").unwrap(){
-            console_engine::forms::FormValue::String(s)=>s,
-            _=>unreachable!()
+        userdata.username = match form.get_field_output("username").unwrap() {
+            console_engine::forms::FormValue::String(s) => s,
+            _ => unreachable!(),
         };
 
-        userdata.password= match form.get_field_output("password").unwrap(){
-            console_engine::forms::FormValue::String(s)=>s,
-            _=>unreachable!()
+        userdata.password = match form.get_field_output("password").unwrap() {
+            console_engine::forms::FormValue::String(s) => s,
+            _ => unreachable!(),
         };
     }
 }
@@ -360,7 +356,7 @@ impl Widget for Table {
             x += lens[i];
         }
         let mut y = 3;
-        for (i, row) in self.data.iter().enumerate() {
+        for (_i, row) in self.data.iter().enumerate() {
             let mut x = 2;
             for (j, s) in row.iter().enumerate() {
                 let mut str = s.clone();
@@ -418,10 +414,10 @@ impl Widget for Drawer {
             }
 
             event::Event::Mouse(MouseEvent {
-                kind: MouseEventKind::Down(b),
-                column: col,
-                row: row,
-                modifiers: m,
+                kind: MouseEventKind::Down(_b),
+                column: _col,
+                row: _,
+                modifiers: _m,
             }) => {
                 // dbg!(col as u32 /x_spacing);
                 self.index += 1;

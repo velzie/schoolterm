@@ -20,10 +20,10 @@ pub struct Student {
 }
 #[derive(Debug)]
 struct DataError {}
-impl Error for DataError{}
-impl Display for DataError{
+impl Error for DataError {}
+impl Display for DataError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "error parsing data.");
+        write!(f, "error parsing data.").unwrap();
         Ok(())
     }
 }
@@ -44,12 +44,16 @@ impl SchoolTool {
         let guid_blob = login_struct.get("PersonGuid").unwrap().as_str().unwrap();
         let auth_header = format!(
             "{} {}:{}",
-            login_struct.get("Key").ok_or(DataError{})?.as_str().unwrap(),
+            login_struct
+                .get("Key")
+                .ok_or(DataError {})?
+                .as_str()
+                .unwrap(),
             guid_blob,
             &password_hash
         );
 
-        let guid = guid_blob.split("|").nth(1).ok_or(DataError{})?.to_string();
+        let guid = guid_blob.split("|").nth(1).ok_or(DataError {})?.to_string();
         Ok(Self {
             base_url,
             auth_header,
