@@ -295,30 +295,33 @@ impl Widget for Table {
         }
 
         let mut averages = vec![0; self.data[0].len()];
+        let mut maxes = vec![0; self.data[0].len()];
 
         for row in &self.data {
             for (i, item) in row.iter().enumerate() {
                 averages[i] += item.len();
+                if item.len() > maxes[i] {
+                    maxes[i] = item.len();
+                }
             }
         }
         for coln in 0..averages.len() {
             averages[coln] /= self.data.len();
+            averages[coln] += 2;
+            maxes[coln] += 2;
         }
 
-        // let averages = self
-        //     .data
-        //     .iter()
-        //     .map(|v| v.iter().map(|s| s.len()).reduce(|i, acc| i + acc).unwrap() / v.len());
-        let mut lens: Vec<u32> = averages
-            .clone()
-            .into_iter()
-            .map(|v| {
-                (v as u32)
-                    .max(3)
-                    .min(self.rect.w / (self.indecies.len() as u32 + 1))
-                    .clone()
-            })
-            .collect();
+        let total_of_avgs = averages.clone().into_iter().reduce(|v, a| v + a).unwrap();
+        let multiplier = self.rect.w as usize / total_of_avgs;
+
+        for coln in 0..averages.len() {
+            averages[coln] = (averages[coln] * multiplier)
+                .max(self.indecies[coln].len() + 2)
+                .min(maxes[coln] + 1);
+        }
+
+        let mut lens: Vec<u32> = averages.into_iter().map(|f| f as u32).collect();
+
         let total_space = lens.clone().into_iter().reduce(|f, acc| f + acc).unwrap();
         let l = lens.len();
         lens[l - 1] = self.rect.w - total_space - 2;
@@ -331,9 +334,9 @@ impl Widget for Table {
         );
         screen.print_fbg(0, 2, "╞", borderfg, theme.bg_accent);
         screen.print_fbg(self.rect.w as i32 - 1, 2, "╡", theme.fg, theme.bg_accent);
-        let mut x = 2;
+        let mut x = 1;
         for (i, s) in self.indecies.iter().enumerate() {
-            screen.print_fbg(x as i32, 1, &s, theme.font, theme.bg);
+            screen.print_fbg(x as i32 + 1, 1, &s, theme.font, theme.bg);
             if i != 0 {
                 screen.v_line(
                     x as i32 - 1,
@@ -357,11 +360,11 @@ impl Widget for Table {
         }
         let mut y = 3;
         for (_i, row) in self.data.iter().enumerate() {
-            let mut x = 2;
+            let mut x = 1;
             for (j, s) in row.iter().enumerate() {
                 let mut str = s.clone();
-                str.truncate(lens[j] as usize - 1);
-                screen.print_fbg(x as i32, y, &str, theme.font, theme.bg);
+                str.truncate(lens[j] as usize - 2);
+                screen.print_fbg(x as i32 + 1, y, &str, theme.font, theme.bg);
                 x += lens[j];
             }
             y += 1;
@@ -465,22 +468,30 @@ impl Widget for Drawer {
 
         let mut x = x_spacing;
         for (i, b) in self.buttons.iter_mut().enumerate() {
+            let mut str = b.clone();
+
+            str.truncate(self.rect.w as usize - x as usize - 2);
             profile_screen.print_fbg(
                 x as i32,
                 y_spacing,
-                b,
-                if self.index == i {
+                &str,
+                if self.clicked_index == i {
+                    theme.fg_accent
+                } else if self.index == i && selected {
                     theme.bg_accent
                 } else {
                     theme.font
                 },
-                if self.index == i {
+                if self.index == i && selected {
                     theme.font
                 } else {
                     theme.bg_accent
                 },
             );
             x += b.len() as u32 + x_spacing;
+            if x >= self.rect.w - 2 {
+                break;
+            }
         }
 
         // profile_screen.print_fbg(

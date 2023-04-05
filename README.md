@@ -30,3 +30,5 @@ an extracted and decompresed schooltool.dll is included in the repo if you want 
 
 
 this repository uses console_engine. i would not advise you do the same
+
+the code is bad, lazy, and not optimal practice. i implore you to first put the blame in order of schooltool and console_engine, then me.

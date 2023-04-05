@@ -195,8 +195,12 @@ fn tui_thread(userdata: &mut UserData, tx: mpsc::Sender<Command>) -> Result<(), 
         if topdrawer.clicked {
             topdrawer.clicked = false;
             match topdrawer.index {
-                0 | 1 => {
+                0 => {
                     panic!();
+                }
+                1 => {
+                    userdata.valid = false;
+                    Err(Exit {})?;
                 }
                 2 => {}
                 _ => (),
@@ -204,6 +208,10 @@ fn tui_thread(userdata: &mut UserData, tx: mpsc::Sender<Command>) -> Result<(), 
         }
 
         if let Some(qdat) = &quarters[typedrawer.clicked_index] {
+            if quarterdrawer.clicked_index >= qdat.len() {
+                quarterdrawer.clicked_index = 0;
+                quarterdrawer.index = 0;
+            }
             quarterdrawer.buttons = qdat.iter().map(|f| f.name.clone()).collect();
             if let Some(cdat) = &courses[typedrawer.clicked_index][quarterdrawer.clicked_index] {
                 let classnames = cdat
@@ -216,7 +224,7 @@ fn tui_thread(userdata: &mut UserData, tx: mpsc::Sender<Command>) -> Result<(), 
 
                 if typedrawer.clicked_index == 0 {
                     if classdrawer.clicked_index != 0 {
-                        table.indecies = vec!["Date".into(), "Assignment".into(), "Grade".into()];
+                        table.indecies = vec!["Assignment".into(), "Date".into(), "Grade".into()];
 
                         let class = &cdat[classdrawer.clicked_index - 1];
                         for i in class.get("Assignments").unwrap().as_array().unwrap() {
@@ -230,13 +238,14 @@ fn tui_thread(userdata: &mut UserData, tx: mpsc::Sender<Command>) -> Result<(), 
                                     .to_string(),
                             );
 
-                            row.push(
-                                i.get("AssignmentDate")
-                                    .unwrap()
-                                    .as_str()
-                                    .unwrap()
-                                    .to_string(),
-                            );
+                            let datestr = i
+                                .get("AssignmentDate")
+                                .unwrap()
+                                .as_str()
+                                .unwrap()
+                                .to_string();
+
+                            row.push(parse_datestr(datestr));
                             row.push(
                                 format!(
                                     "{}/{}",
@@ -333,7 +342,7 @@ fn tui_thread(userdata: &mut UserData, tx: mpsc::Sender<Command>) -> Result<(), 
                                 .unwrap()
                                 .iter()
                                 .map(|v| v.as_str().unwrap().to_string())
-                                .reduce(|s, acc| format!("{},{}", s, acc))
+                                .reduce(|s, acc| format!("{} | {}", s, acc))
                                 .unwrap_or_default(),
                         );
                         if let Some(grade) = gradeobj.get("Grade").unwrap().as_str() {
