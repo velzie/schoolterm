@@ -386,6 +386,9 @@ pub struct Drawer {
 }
 impl Widget for Drawer {
     fn feed_event(&mut self, event: event::Event) -> Option<event::Event> {
+        if self.buttons.is_empty(){
+            return Some(event);
+        }
         match event {
             event::Event::Key(KeyEvent {
                 code: KeyCode::Right,

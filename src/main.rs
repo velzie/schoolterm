@@ -536,8 +536,6 @@ fn tui_thread(userdata: &mut UserData, tx: mpsc::Sender<Command>) -> Result<(), 
             }
         }
     }
-
-    Ok(())
 }
 fn parse_datestr(date: String) -> String {
     let timestamp = &date[6..date.len() - 2];

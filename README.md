@@ -23,12 +23,4 @@ my main motivation for is that the web interface is utter shit and logs you out 
 if you didn't already know, i also have a deep love for tuis and rust, and tuis that happen to be written in rust
 
 ## how did i make this?
-the official schooltool web interface is rendered server side, and there's no publicly documented api, so i had to use the mobile app's endpoints, with a combination of packet inspection and reverse engineering. httptoolkit for getting the endpoints, and ilspy to pull apart the android apk to make my own implementation of their goofy aah password algorithm
-
-credit to whoever made ./decomp.py, i forgot where i found it but you need it for decompressing the .net assembly.
-an extracted and decompresed schooltool.dll is included in the repo if you want to hop in
-
-
-this repository uses console_engine. i would not advise you do the same
-
-the code is bad, lazy, and not optimal practice. i implore you to first put the blame in order of schooltool and console_engine, then me.
+https://coolelectronics.me/blog/schoolterm
